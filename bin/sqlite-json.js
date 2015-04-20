@@ -16,13 +16,14 @@ program
     .action(function(database, table, options) {
 
         options = (options) || {};
+
+        const output = options.output;
+
         options = {
             key: options.key || null,
             where: options.where || null,
             columns: options.columns || null
         };
-
-        console.error(options.columns);
 
         sj(database).json(table, options, function(err, json) {
 
@@ -30,8 +31,8 @@ program
                 console.error(err);
                 return;
 
-            } else if (options && options.output) {
-                require('fs').writeFile(options.output, json, function(err) {
+            } else if (output) {
+                require('fs').writeFile(output, json, function(err) {
                     if (err) process.stderr.write(err);
                     else process.stdout.write(program.output + '\n');
                 });
