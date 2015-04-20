@@ -80,6 +80,31 @@ describe('sqliteToJson', function () {
         });
     });
 
+
+    it('should accept a key option', function (done) {
+        const desired = data.reduce(function(o, v) { o[v.name] = v; return o; }, {});
+        sqlitejson.json('numbers', {key: "name"}, function (err, json) {
+            should.deepEqual(json,
+                JSON.stringify(desired),
+                'data should match keyed'
+            );
+            done(err);
+        });
+    });
+
+    it('should filter with a where option', function (done) {
+        const desired = data.filter(function(i) { return i.name.substr(0, 1) == 't' }, {});
+        sqlitejson.json('numbers', {where: "name LIKE 't%'"}, function (err, json) {
+            should.deepEqual(json,
+                JSON.stringify(desired),
+                'data should match filtered'
+            );
+            done(err);
+        });
+
+    });
+
+
     after(function(){
         rimraf('./tmp');
     });

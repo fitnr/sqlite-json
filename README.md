@@ -51,7 +51,7 @@ var db = new sqlite3.Database('./mydb.sqlite3');
 exporter = sqliteJson(db);
 ```
 
-### json(table, key, callback)
+### json(table, options, callback)
 
 Export JSON from a specified table, and use it in the given callback.
 
@@ -63,7 +63,7 @@ exporter.json('myTable', function (err, json) {
 });
 ```
 
-#### key
+#### options.key
 
 An optional column name.
 
@@ -73,8 +73,21 @@ Type: string
 
 Example:
 ```js
-exporter.json('myTable', 'foo', function (err, json) {
+exporter.json('myTable', {key: 'foo'}, function (err, json) {
   // "{"1": {"foo": 1}, "2": {"foo": 2}, "3": {"foo": 3}}"
+});
+```
+
+#### options.where
+
+A where clause to add to the query.
+
+Type: string
+
+Example:
+```js
+exporter.json('myTable', {where: 'foo > 1'}, function (err, json) {
+  // "[{"foo": 2}, {"foo": 3}]"
 });
 ```
 

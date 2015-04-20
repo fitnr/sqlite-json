@@ -7,11 +7,15 @@ program
     .description('Export a SQLite table to JSON')
     .option('-o, --output <file>', 'Save result to file', String)
     .option('-k, --key <key>', 'Key output to column', String)
+    .option('-w, --where <clause>', 'WHERE clause to add to table query', String)
     .action(function(database, table, options) {
 
-        const key = options && options.key || null;
+        const options = {
+            key: options && options.key || null,
+            where: options && options.where || null
+        };
 
-        sj(database).json(table, key, function(err, json) {
+        sj(database).json(table, options, function(err, json) {
 
             if (err) {
                 console.error(err);

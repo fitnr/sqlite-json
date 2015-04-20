@@ -14,20 +14,19 @@ function sqliteJSON(database) {
     return this;
 }
 
-sqliteJSON.prototype.json = function(table, key, cb) {
-    if (key instanceof(Function)) {
-        cb = key;
-        key = null;
+sqliteJSON.prototype.json = function(table, options, cb) {
+    if (options instanceof(Function)) {
+        cb = options;
+        options = {};
     }
 
-    this.client.all('SELECT * FROM ' + table, function(err, data) {
+    const query = 'SELECT * FROM ' + table + ((options.where) ? ' WHERE ' + options.where : '');
+
+    this.client.all(query, function(err, data) {
         if (err) cb(String(err));
         
-        if (key) {
-            var newdata = {};
-            data.forEach(function(row) { newdata[row[key]] = row; });
-            data = newdata;
-        }
+        if (options.key)
+            data = data.reduce(function(obj, item) { obj[item[options.key]] = item; return obj; }, {});
 
         cb(null, JSON.stringify(data));
     });
@@ -53,7 +52,7 @@ sqliteJSON.prototype.save = function(table, filename, cb) {
 };
 
 sqliteJSON.prototype.tables = function(cb) {
-    var query = "SELECT name FROM sqlite_master WHERE type='table'";
+    const query = "SELECT name FROM sqlite_master WHERE type='table'";
 
     this.client.all(query, function (err, tables) {
         if (err)
