@@ -4,7 +4,7 @@ const program = require('commander'),
     sj = require('..');
 
 program
-    .version('0.1.5')
+    .version('0.1.6')
     .usage('[options] <database> <table>')
     .description('Export a SQLite table to JSON')
     .option('-o, --output <file>', 'Save result to file', String)
