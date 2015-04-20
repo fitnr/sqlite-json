@@ -1,0 +1,43 @@
+{
+  "name": "sqlite-json",
+  "description": "Convert Sqlite3 tables to JSON",
+  "version": "0.1.2",
+  "homepage": "https://github.com/fitnr/sqlite-json",
+  "author": {
+    "name": "Neil Freeman",
+    "url": "http://fakeisthenewreal.org"
+  },
+  "bin": "bin/sqlite-json.js",
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/fitnr/sqlite-json.git"
+  },
+  "bugs": {
+    "url": "https://github.com/fitnr/sqlite-json/issues"
+  },
+  "licenses": [
+    {
+      "type": "MIT",
+      "url": "https://github.com/fitnr/sqlite-json/blob/master/LICENSE"
+    }
+  ],
+  "main": "index.js",
+  "engines": {
+    "node": ">= 0.8"
+  },
+  "scripts": {
+    "test": "mocha test.js"
+  },
+  "devDependencies": {
+    "mocha": "^1.20.1",
+    "rimraf": "^2.3.2",
+    "should": "^6.0.1"
+  },
+  "keywords": [
+    "sqlite sqlite3 json"
+  ],
+  "dependencies": {
+    "commander": "^2.8.0",
+    "sqlite3": "^2.2.4"
+  }
+}
