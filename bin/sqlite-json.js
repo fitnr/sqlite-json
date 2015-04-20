@@ -1,8 +1,8 @@
-const program = require('commander');
-const sj = require('..');
+var program = require('commander'),
+    sj = require('..');
 
 program
-    .version('0.1.3')
+    .version('0.1.4')
     .usage('[options] <database> <table>')
     .description('Export a SQLite table to JSON')
     .option('-o, --output <file>', 'Save result to file', String)
@@ -10,7 +10,7 @@ program
     .option('-w, --where <clause>', 'WHERE clause to add to table query', String)
     .action(function(database, table, options) {
 
-        const options = {
+        options = {
             key: options && options.key || null,
             where: options && options.where || null
         };
