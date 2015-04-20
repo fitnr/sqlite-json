@@ -6,7 +6,7 @@ const program = require('commander'),
 function list(val) { return val.split(','); }
 
 program
-    .version('0.1.7')
+    .version('0.1.8')
     .usage('[options] <database> <table>')
     .description('Export a SQLite table to JSON')
     .option('-c, --columns <list>', 'Comma-delimited list of columns to output (Default: all)', list)
