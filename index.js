@@ -20,6 +20,10 @@ sqliteJSON.prototype.json = function(table, options, cb) {
         options = {};
     }
 
+    // make sure the key is in the output
+    if (options.key && options.columns && options.columns.indexOf(options.key) < 0)
+        options.columns.push(options.key);
+
     const columns = (options.columns) ? options.columns.join(', ') : '*',
         where = (options.where) ? ' WHERE ' + options.where : '',
         query = 'SELECT ' + columns + ' FROM ' + table + where + ';';
