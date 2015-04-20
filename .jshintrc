@@ -1,5 +1,6 @@
 {
   "node": true,
+  "esnext": true,
   "globals": {
     "describe": true,
     "it": true,

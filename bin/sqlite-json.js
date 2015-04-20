@@ -1,8 +1,10 @@
-var program = require('commander'),
+#!/usr/bin/env node
+
+const program = require('commander'),
     sj = require('..');
 
 program
-    .version('0.1.4')
+    .version('0.1.5')
     .usage('[options] <database> <table>')
     .description('Export a SQLite table to JSON')
     .option('-o, --output <file>', 'Save result to file', String)

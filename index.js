@@ -1,4 +1,4 @@
-var sqlite = require('sqlite3'),
+const sqlite = require('sqlite3'),
     fs = require('fs'),
     path = require('path'),
     mkdirp = require('mkdirp');
@@ -20,7 +20,7 @@ sqliteJSON.prototype.json = function(table, options, cb) {
         options = {};
     }
 
-    var query = 'SELECT * FROM ' + table + ((options.where) ? ' WHERE ' + options.where : '');
+    const query = 'SELECT * FROM ' + table + ((options.where) ? ' WHERE ' + options.where : '');
 
     this.client.all(query, function(err, data) {
         if (err) cb(String(err));
@@ -52,7 +52,7 @@ sqliteJSON.prototype.save = function(table, filename, cb) {
 };
 
 sqliteJSON.prototype.tables = function(cb) {
-    var query = "SELECT name FROM sqlite_master WHERE type='table'";
+    const query = "SELECT name FROM sqlite_master WHERE type='table'";
 
     this.client.all(query, function (err, tables) {
         if (err)
