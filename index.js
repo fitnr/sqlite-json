@@ -20,7 +20,9 @@ sqliteJSON.prototype.json = function(table, options, cb) {
         options = {};
     }
 
-    const query = 'SELECT * FROM ' + table + ((options.where) ? ' WHERE ' + options.where : '');
+    const columns = (options.columns) ? options.columns.join(', ') : '*',
+        where = (options.where) ? ' WHERE ' + options.where : '',
+        query = 'SELECT ' + columns + ' FROM ' + table + where + ';';
 
     this.client.all(query, function(err, data) {
         if (err) cb(String(err));

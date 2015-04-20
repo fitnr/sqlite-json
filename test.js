@@ -99,8 +99,33 @@ describe('sqliteToJson', function () {
         });
     });
 
+    it('should filter with a columns option', function (done) {
+        const desired = data.map(function(i) { return {"name": i.name}; }, {});
+        sqlitejson.json('presidents', {columns: ["name"]}, function (err, json) {
+            should.deepEqual(json,
+                JSON.stringify(desired),
+                'data should match filtered'
+            );
+            done(err);
+        });
     });
 
+    it('should accept where, key, columns simulataneously', function (done) {
+        const opts = {
+            columns: ["name"],
+            key: "name",
+            where: "id == 1"
+        },
+            desired = {"Washington": {"name": "Washington"}};
+
+        sqlitejson.json('presidents', opts, function (err, json) {
+            should.deepEqual(json,
+                JSON.stringify(desired),
+                'data should match filtered'
+            );
+            done(err);
+        });
+    });
 
     after(function(){
         rimraf('./tmp');

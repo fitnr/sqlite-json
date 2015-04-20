@@ -13,7 +13,9 @@
     -h, --help           output usage information
     -V, --version        output the version number
     -o, --output <file>  Save result to file
+    -c, --columns <list> Comma-delimited list of columns to output (Default: all)
     -k, --key <key>      Key output to column
+    -w, --where <clause> WHERE clause to add to table query
 ```
 
 By default, the cli outputs to stdout.
@@ -59,6 +61,19 @@ Example:
 ```js
 exporter.json('myTable', function (err, json) {
   // handle error or do something with the JSON
+  // "[{"foo": 1}, {"foo": 2}, {"foo": 3}]"
+});
+```
+
+#### options.columns
+
+An optional list of columns to output.
+
+Type: Array
+
+Example:
+```js
+exporter.json('myTable', {columns: ['foo']}, function (err, json) {
   // "[{"foo": 1}, {"foo": 2}, {"foo": 3}]"
 });
 ```
