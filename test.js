@@ -1,4 +1,7 @@
+#!/usr/bin/env node
+
 const fs = require('fs'),
+    child = require('child_process'),
     should = require('should'),
     sqlite = require('sqlite3'),
     rimraf = require('rimraf').sync,
@@ -21,7 +24,7 @@ describe('sqliteToJson', function () {
         rimraf('./tmp');
         mkdirp('./tmp');
 
-        const db = new sqlite.Database(':memory:');
+        const db = new sqlite.Database('./tmp/tmp.db');
         this.sqlitejson = SJ(db);
 
         db.serialize(function(e) {
@@ -122,6 +125,30 @@ describe('sqliteToJson', function () {
                 'data should match filtered'
             );
             done(err);
+        });
+    });
+
+
+    it('cli should work', function (done) {
+        this.command = 'node ./bin/sqlite-json.js';
+        this.nodeargs = [
+                "./tmp/tmp.db",
+                'presidents'
+            ];
+
+        fixture = JSON.stringify();
+
+        child.exec(this.command +" "+ this.nodeargs.join(' '), function(e, result, err) {
+            if (e) throw e;
+
+            console.error("");
+            console.error(err);
+
+            should.deepEqual(JSON.parse(result),
+                data,
+                'Command line matches'
+            );
+            done();
         });
     });
 
