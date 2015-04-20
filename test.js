@@ -10,16 +10,12 @@ const SJ = require('./');
 const db = new sqlite.Database(':memory:');
 
 const data = [
-  { name: 'one' },
-  { name: 'two' },
-  { name: 'three' },
-  { name: 'four' },
-  { name: 'five' },
-  { name: 'six' },
-  { name: 'seven' },
-  { name: 'eight' },
-  { name: 'nine' },
-  { name: 'ten' }
+  { name: 'Washington', id: 1 },
+  { name: 'Adams', id: 2 },
+  { name: 'Jefferson', id: 3 },
+  { name: 'Madison', id: 4 },
+  { name: 'Monroe', id: 5 },
+  { name: 'Adams', id: 6 },
 ];
 
 const sqlitejson = SJ(db);
@@ -31,11 +27,11 @@ describe('sqliteToJson', function () {
         mkdirp('./tmp');
 
         db.serialize(function(e) {
-            db.run("CREATE TABLE numbers (name TEXT)");
-            var stmt = db.prepare("INSERT INTO numbers VALUES (?)");
+            db.run("CREATE TABLE presidents (name TEXT, id INT)");
+            var stmt = db.prepare("INSERT INTO presidents VALUES (?, ?)");
 
             data.forEach(function(row) {
-                stmt.run(row.name);
+                stmt.run(row.name, row.id);
             });
 
             stmt.finalize();
@@ -52,14 +48,13 @@ describe('sqliteToJson', function () {
     it('should callback with all tables in the specified database', function (done) {
         sqlitejson.tables(function(e, result) {
             result.should.have.length(1);
-            result.should.be.containDeep(['numbers']);
+            result.should.be.containDeep(['presidents']);
             done(e);
         });
     });
 
     it('should export a table to JSON', function (done) {
-        
-        sqlitejson.json('numbers', function (err, json) {
+        sqlitejson.json('presidents', function (err, json) {
             should.deepEqual(json,
                 JSON.stringify(data),
                 'data should match fixture'
@@ -71,7 +66,8 @@ describe('sqliteToJson', function () {
 
     it('should save a table in a database to a file', function (done) {
         var dest = 'tmp/bar';
-        sqlitejson.save('numbers', dest, function (err, data) {
+        sqlitejson.save('presidents', dest, function (err, data) {
+
             should.deepEqual(JSON.parse(data),
                 JSON.parse(fs.readFileSync(dest)),
                 'data should match file'
@@ -83,7 +79,7 @@ describe('sqliteToJson', function () {
 
     it('should accept a key option', function (done) {
         const desired = data.reduce(function(o, v) { o[v.name] = v; return o; }, {});
-        sqlitejson.json('numbers', {key: "name"}, function (err, json) {
+        sqlitejson.json('presidents', {key: "name"}, function (err, json) {
             should.deepEqual(json,
                 JSON.stringify(desired),
                 'data should match keyed'
@@ -93,14 +89,15 @@ describe('sqliteToJson', function () {
     });
 
     it('should filter with a where option', function (done) {
-        const desired = data.filter(function(i) { return i.name.substr(0, 1) == 't' }, {});
-        sqlitejson.json('numbers', {where: "name LIKE 't%'"}, function (err, json) {
+        const desired = data.filter(function(i) { return i.name == 'Adams'; }, {});
+        sqlitejson.json('presidents', {where: "name = 'Adams'"}, function (err, json) {
             should.deepEqual(json,
                 JSON.stringify(desired),
                 'data should match filtered'
             );
             done(err);
         });
+    });
 
     });
 
