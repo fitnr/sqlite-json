@@ -28,8 +28,10 @@ program
         sj(database).json(table, options, function(err, json) {
 
             if (err) {
-                console.error(err);
-                return;
+                if (String(err).indexOf('no such table') > -1)
+                    console.error('error: table not found');
+                else
+                    console.error(err);
 
             } else if (output) {
                 require('fs').writeFile(output, json, function(err) {

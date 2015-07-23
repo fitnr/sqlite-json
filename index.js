@@ -25,8 +25,11 @@ sqliteJSON.prototype.json = function(table, options, cb) {
         query = 'SELECT ' + columns + ' FROM ' + table + where + ';';
 
     this.client.all(query, function(err, data) {
-        if (err) cb(String(err));
-        
+        if (err) {
+            cb(err);
+            return;
+        }
+
         if (options.key)
             data = data.reduce(function(obj, item) { obj[item[options.key]] = item; return obj; }, {});
 
