@@ -39,14 +39,18 @@ describe('sqliteToJson', function () {
 
             done(e);
         });
+
+        desired = data.reduce(function(o, v) { o[v.name] = v; return o; }, {});
+
+        this.command = 'node ./bin/sqlite-json.js';
     });
 
-    it('should accept a filename', function() {
+    it('accepts a filename', function() {
         var sj = SJ('tmp/foo.db');
         sj.should.be.an.instanceOf(SJ);
     });
 
-    it('should callback with all tables in the specified database', function (done) {
+    it('calls back with all tables in the specified database', function (done) {
         this.sqlitejson.tables(function(e, result) {
             result.should.have.length(1);
             result.should.be.containDeep(['presidents']);
@@ -54,95 +58,146 @@ describe('sqliteToJson', function () {
         });
     });
 
-    it('should export a table to JSON', function (done) {
-        this.sqlitejson.json('presidents', function (err, json) {
-            should.deepEqual(json,
-                JSON.stringify(data),
-                'data should match fixture'
-            );
+    it('exports a table to JSON', function (done) {
+        this.sqlitejson.json({table: 'presidents'}, function (err, json) {
+            if (!err) should.deepEqual(JSON.parse(json), data);
             done(err);
         });
     });
 
-
-    it('should save a table in a database to a file', function (done) {
+    it('saves a table in a database to a file', function (done) {
         var dest = 'tmp/bar';
-        this.sqlitejson.save('presidents', dest, function (err, data) {
+        this.sqlitejson.save({table: 'presidents'}, dest, function (err, data) {
 
-            should.deepEqual(JSON.parse(data),
-                JSON.parse(fs.readFileSync(dest)),
-                'data should match file'
-            );
+            if (!err) 
+                should.deepEqual(
+                    JSON.parse(data),
+                    JSON.parse(fs.readFileSync(dest)),
+                    'data should match file'
+                );
             done(err);
         });
     });
 
-
-    it('should accept a key option', function (done) {
+    it('accepts a key option', function (done) {
         const desired = data.reduce(function(o, v) { o[v.name] = v; return o; }, {});
-        this.sqlitejson.json('presidents', {key: "name"}, function (err, json) {
-            should.deepEqual(json,
-                JSON.stringify(desired),
-                'data should match keyed'
-            );
+        this.sqlitejson.json({table: 'presidents', key: "name"}, function (err, json) {
+            if (!err) should.deepEqual(JSON.parse(json), desired);
             done(err);
         });
     });
 
-    it('should filter with a where option', function (done) {
+    it('attaches a key to the output', function (done) {
+        const desired = data.reduce(function(o, v) { o[v.name] = v; return o; }, {});
+        this.sqlitejson.json({table: 'presidents', key: "name", columns: ["id"]}, function (err, json) {
+            if (!err) should.deepEqual(JSON.parse(json), desired);
+            done(err);
+        });
+    });
+
+    it('filters with a where option', function (done) {
         const desired = data.filter(function(i) { return i.name == 'Adams'; }, {});
-        this.sqlitejson.json('presidents', {where: "name = 'Adams'"}, function (err, json) {
-            should.deepEqual(json,
-                JSON.stringify(desired),
-                'data should match filtered'
-            );
+        this.sqlitejson.json({table: 'presidents', where: "name = 'Adams'"}, function (err, json) {
+            if (!err) should.deepEqual(json, JSON.stringify(desired));
             done(err);
         });
     });
 
-    it('should filter with a columns option', function (done) {
+    it('filters with a columns option', function (done) {
         const desired = data.map(function(i) { return {"name": i.name}; }, {});
-        this.sqlitejson.json('presidents', {columns: ["name"]}, function (err, json) {
-            should.deepEqual(json,
-                JSON.stringify(desired),
-                'data should match filtered'
-            );
+        this.sqlitejson.json({table: 'presidents', columns: ["name"]}, function (err, json) {
+            if (!err) should.deepEqual(JSON.parse(json), desired);
             done(err);
         });
     });
 
-    it('should accept where, key, columns simulataneously', function (done) {
+    it('accepts SQL with a callback', function (done) {
+        const desired = data.map(function(i) { return {"name": i.name}; }, {});
+        this.sqlitejson.json("select name from presidents", function (err, json) {
+            if (!err) should.deepEqual(JSON.parse(json), desired);
+            done(err);
+        });
+    });
+
+    it('accepts where, key, columns simultaneously', function (done) {
         const opts = {
+            table: 'presidents',
             columns: ["name"],
             key: "name",
             where: "id == 1"
         },
             desired = {"Washington": {"name": "Washington"}};
 
-        this.sqlitejson.json('presidents', opts, function (err, json) {
-            should.deepEqual(json,
-                JSON.stringify(desired),
-                'data should match filtered'
-            );
+        this.sqlitejson.json(opts, function (err, json) {
+            if (!err) should.deepEqual(JSON.parse(json), desired);
             done(err);
         });
     });
 
-
-    it('cli should work', function (done) {
-        this.command = 'node ./bin/sqlite-json.js';
-        this.nodeargs = [
+    it('cli works with options', function (done) {
+        args = [
                 "./tmp/tmp.db",
+                '--table',
                 'presidents'
             ];
 
         fixture = JSON.stringify();
 
-        child.exec(this.command +" "+ this.nodeargs.join(' '), function(e, result, err) {
+        child.exec(this.command +" "+ args.join(' '), function(e, result, err) {
             if (e) throw e;
+            if (err) {
+                console.error("");
+                console.error(err);
+            }
+            should.deepEqual(JSON.parse(result),
+                data,
+                'Command line matches'
+            );
+            done();
+        });
+    });
 
-            console.error("");
-            console.error(err);
+    it('cli works with SQL', function (done) {
+
+        nodeargs = [
+                "./tmp/tmp.db",
+                '"SELECT * FROM presidents;"'
+            ];
+
+        fixture = JSON.stringify();
+
+        child.exec(this.command +" "+ nodeargs.join(' '), function(e, result, err) {
+            if (e) throw e;
+            if (err) {
+                console.error("");
+                console.error(err);
+            }
+
+            should.deepEqual(JSON.parse(result),
+                data,
+                'Command line matches'
+            );
+            done();
+        });
+    });
+
+    it('cli SQL overrides options', function (done) {
+
+        nodeargs = [
+                "./tmp/tmp.db",
+                '"SELECT * FROM presidents;"',
+                "--where",
+                "id==1"
+            ];
+
+        fixture = JSON.stringify();
+
+        child.exec(this.command +" "+ nodeargs.join(' '), function(e, result, err) {
+            if (e) throw e;
+            if (err) {
+                console.error("");
+                console.error(err);
+            }
 
             should.deepEqual(JSON.parse(result),
                 data,

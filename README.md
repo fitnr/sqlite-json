@@ -4,28 +4,36 @@
 ## Command line Interface
 
 ```
-  Usage: sqlite-json [options] <database> <table>
+  Usage: sqlite-json [options] <database> [sql]
 
   Export a SQLite table to JSON
 
   Options:
 
-    -h, --help           output usage information
-    -V, --version        output the version number
-    -o, --output <file>  Save result to file
-    -c, --columns <list> Comma-delimited list of columns to output (Default: all)
-    -k, --key <key>      Key output to column
-    -w, --where <clause> WHERE clause to add to table query
+    -h, --help            output usage information
+    -V, --version         output the version number
+    -k, --key <key>       Key output to column
+    -t, --table <table>   table to query
+    -c, --columns <list>  Comma-delimited list of columns to output (Default: all)
+    -w, --where <clause>  WHERE clause to add to table query
+    -o, --output <file>   Save result to file
 ```
 
-By default, the cli outputs to stdout.
+One can either pass SQL directly to SQLite or use the `table`, `columns` and/or `where` options to contrust a query.
 
-### Examples:
+By default, sqlite-json returns lists of JSON objects. Use the `key` option to return an object with rows keyed to a value from your table.
+
+By default, the cli outputs to stdout. Use the `--output` option to specify a destination file.
+
+### Examples
 
 ```bash
-$ sqlite-json data.db table --key ID -o output.json
-$ sqlite-json data.db table | other_program > output.json
+ sqlite-json data.db --key ID "SELECT ID, name FROM myTable"
+ sqlite-json data.db --table myTable --key ID -o output.json
+ sqlite-json data.db -t myTable | other_program > output.json
 ```
+
+Note that currently only a single query is supported. Attaching databases or doing multiple queries will produce an error.
 
 ## API
 
@@ -53,13 +61,13 @@ var db = new sqlite3.Database('./mydb.sqlite3');
 exporter = sqliteJson(db);
 ```
 
-### json(table, options, callback)
+### json(sql, options, callback)
 
 Export JSON from a specified table, and use it in the given callback.
 
 Example:
 ```js
-exporter.json('myTable', function (err, json) {
+exporter.json('select * FROM myTable', function (err, json) {
   // handle error or do something with the JSON
   // "[{"foo": 1}, {"foo": 2}, {"foo": 3}]"
 });
@@ -73,7 +81,7 @@ Type: Array
 
 Example:
 ```js
-exporter.json('myTable', {columns: ['foo']}, function (err, json) {
+exporter.json({table: 'myTable' columns: ['foo']}, function (err, json) {
   // "[{"foo": 1}, {"foo": 2}, {"foo": 3}]"
 });
 ```
@@ -93,6 +101,12 @@ exporter.json('myTable', {key: 'foo'}, function (err, json) {
 });
 ```
 
+#### options.table
+
+A table to address with the `columns`, and `where` options.
+
+Type: string
+
 #### options.where
 
 A where clause to add to the query.
@@ -101,7 +115,7 @@ Type: string
 
 Example:
 ```js
-exporter.json('myTable', {where: 'foo > 1'}, function (err, json) {
+exporter.json({table: 'myTable', where: 'foo > 1'}, function (err, json) {
   // "[{"foo": 2}, {"foo": 3}]"
 });
 ```
