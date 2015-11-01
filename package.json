@@ -1,7 +1,7 @@
 {
   "name": "sqlite-json",
   "description": "Convert Sqlite3 tables to JSON",
-  "version": "0.2.1",
+  "version": "1.0.0",
   "homepage": "https://github.com/fitnr/sqlite-json",
   "author": {
     "name": "Neil Freeman",
@@ -27,6 +27,7 @@
     "node": ">= 0.12,<5"
   },
   "scripts": {
+    "cover": "istanbul cover _mocha -- test.js",
     "test": "mocha test.js"
   },
   "devDependencies": {
