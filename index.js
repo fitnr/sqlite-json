@@ -14,21 +14,28 @@ function sqliteJSON(database) {
     return this;
 }
 
-sqliteJSON.prototype.json = function(table, options, cb) {
-    if (options instanceof(Function)) {
+sqliteJSON.prototype.json = function(sql, options, cb) {
+
+    if (options instanceof(Function))
         cb = options;
-        options = {};
+
+    if (sql instanceof(Object)) {
+        options = sql;
+        sql = null;
     }
 
-    // make sure the key is in the output
-    if (options.key && options.columns && options.columns.indexOf(options.key) < 0)
-        options.columns.push(options.key);
+    if (!sql) {
+        // make sure the key is in the output
+        if (options.key && options.columns && options.columns.indexOf(options.key) < 0)
+            options.columns.push(options.key);
 
-    const columns = (options.columns) ? options.columns.join(', ') : '*',
-        where = (options.where) ? ' WHERE ' + options.where : '',
-        query = 'SELECT ' + columns + ' FROM ' + table + where + ';';
+        const columns = (options.columns) ? options.columns.join(', ') : '*',
+            where = (options.where) ? ' WHERE ' + options.where : '';
 
-    this.client.all(query, function(err, data) {
+        sql = 'SELECT ' + columns + ' FROM ' + options.table + where + ';';
+    }
+
+    this.client.all(sql, function(err, data) {
         if (err) {
             cb(err);
             return;

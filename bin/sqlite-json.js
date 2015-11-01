@@ -7,25 +7,30 @@ function list(val) { return val.split(','); }
 
 program
     .version('0.1.8')
-    .usage('[options] <database> <table>')
+    .usage('[options] <database> [sql]')
     .description('Export a SQLite table to JSON')
-    .option('-c, --columns <list>', 'Comma-delimited list of columns to output (Default: all)', list)
-    .option('-o, --output <file>', 'Save result to file', String)
     .option('-k, --key <key>', 'Key output to column', String)
+    .option('-t, --table <table>', 'table to query', String)
+    .option('-c, --columns <list>', 'Comma-delimited list of columns to output (Default: all)', list)
     .option('-w, --where <clause>', 'WHERE clause to add to table query', String)
-    .action(function(database, table, options) {
-
-        options = (options) || {};
+    .option('-o, --output <file>', 'Save result to file', String)
+    .action(function(database, sql, options) {
+        if (typeof(sql) == 'object' && typeof(options) === 'undefined') {
+            options = sql;
+            sql = null;
+        }
 
         const output = options.output;
 
         options = {
+            table: options.table || null,
+            query: options.query || null,
             key: options.key || null,
             where: options.where || null,
             columns: options.columns || null
         };
 
-        sj(database).json(table, options, function(err, json) {
+        sj(database).json(sql, options, function(err, json) {
 
             if (err) {
                 if (String(err).indexOf('no such table') > -1)
@@ -41,7 +46,7 @@ program
 
             } else {
                 process.stdout.on('error', function(err) { console.error(err); });
-                process.stdout.write(json);
+                process.stdout.write(json + '\n');
             }
         });
     });
