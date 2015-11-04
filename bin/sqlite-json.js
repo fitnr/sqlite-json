@@ -36,16 +36,24 @@ program
                 if (String(err).indexOf('no such table') > -1)
                     console.error('error: table not found');
                 else
-                    console.error(err);
+                    console.error(err.message);
+
+                process.exit(1);
 
             } else if (output) {
                 require('fs').writeFile(output, json, function(err) {
-                    if (err) process.stderr.write(err);
+                    if (err) {
+                        process.stderr.write(err.message);
+                        process.exit(1);
+                    }
                     else process.stdout.write(program.output + '\n');
                 });
 
             } else {
-                process.stdout.on('error', function(err) { console.error(err); });
+                process.stdout.on('error', function(err) {
+                    console.error(err.message);
+                    process.exit(1);
+                });
                 process.stdout.write(json + '\n');
             }
         });
