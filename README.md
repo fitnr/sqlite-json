@@ -43,7 +43,7 @@ Create an instance of sqlite-json.
 
 Example:
 ```js
-const sqliteJSON = require('sqlite-json');
+const sqliteJson = require('sqlite-json');
 const exporter = sqliteJson('example.db');
 ```
 
