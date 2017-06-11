@@ -43,7 +43,7 @@ Create an instance of sqlite-json.
 
 Example:
 ```js
-const sqliteJSON = require('sqlite-json');
+const sqliteJson = require('sqlite-json');
 const exporter = sqliteJson('example.db');
 ```
 
@@ -57,7 +57,7 @@ Example:
 
 ```js
 const sqlite3 = require('sqlite3');
-var db = new sqlite3.Database('./mydb.sqlite3');
+const db = new sqlite3.Database('./mydb.sqlite3');
 exporter = sqliteJson(db);
 ```
 
@@ -67,7 +67,7 @@ Export JSON from a specified table, and use it in the given callback.
 
 Example:
 ```js
-exporter.json('select * FROM myTable', function (err, json) {
+exporter.json('select * FROM myTable', (err, json) => {
   // handle error or do something with the JSON
   // "[{"foo": 1}, {"foo": 2}, {"foo": 3}]"
 });
@@ -81,7 +81,7 @@ Type: Array
 
 Example:
 ```js
-exporter.json({table: 'myTable' columns: ['foo']}, function (err, json) {
+exporter.json({table: 'myTable' columns: ['foo']}, (err, json) => {
   // "[{"foo": 1}, {"foo": 2}, {"foo": 3}]"
 });
 ```
@@ -96,7 +96,7 @@ Type: string
 
 Example:
 ```js
-exporter.json('myTable', {key: 'foo'}, function (err, json) {
+exporter.json('myTable', {key: 'foo'}, (err, json) => {
   // "{"1": {"foo": 1}, "2": {"foo": 2}, "3": {"foo": 3}}"
 });
 ```
@@ -115,7 +115,7 @@ Type: string
 
 Example:
 ```js
-exporter.json({table: 'myTable', where: 'foo > 1'}, function (err, json) {
+exporter.json({table: 'myTable', where: 'foo > 1'}, (err, json) => {
   // "[{"foo": 2}, {"foo": 3}]"
 });
 ```
@@ -126,7 +126,7 @@ List all tables in the current database.
 
 Example:
 ```js
-exporter.tables(function (err, tables) {
+exporter.tables((err, tables) => {
   // tables === ['foo', 'bar', 'baz']
 });
 ```
@@ -137,7 +137,7 @@ Save the contents of a table to the specified output file.
 
 Example:
 ```js
-exporter.save('table_name', 'data/table_name.json', function (err, data) {
+exporter.save('table_name', 'data/table_name.json', (err, data) => {
     // Optionally do something else with the JSON.
 });
 ```
