@@ -1,6 +1,8 @@
 # sqlite-json
 > Convert Sqlite3 tables to JSON
 
+[![Build Status](https://travis-ci.org/fitnr/sqlite-json.svg)](https://travis-ci.org/fitnr/sqlite-json)
+
 ## Command line Interface
 
 ```
