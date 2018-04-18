@@ -13,4 +13,5 @@ node_js:
 matrix:
     fast_finish: true
     allow_failures:
-        - node_js: 5.12.0
+        - node_js: 0.12.18
+        - node_js: iojs
