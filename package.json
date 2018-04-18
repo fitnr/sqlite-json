@@ -23,9 +23,6 @@
     }
   ],
   "main": "index.js",
-  "engines": {
-    "node": ">= 0.12,<5"
-  },
   "scripts": {
     "cover": "istanbul cover _mocha -- test.js",
     "test": "mocha test.js"
