@@ -38,6 +38,6 @@
   "dependencies": {
     "commander": "^2.15.1",
     "mkdirp": "^0.5.1",
-    "sqlite3": "^4.0.0"
+    "sqlite3": "^4.0.1"
   }
 }
