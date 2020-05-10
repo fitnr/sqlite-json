@@ -54,13 +54,11 @@ sqliteJSON.prototype.save = function(table, filename, cb) {
     this.json(table, function(err, data) {
         if (err) cb(err);
 
-        mkdirp(path.dirname(filename), function(err) {
-            if (err) cb(err);
+        mkdirp.sync(path.dirname(filename));
 
-            fs.writeFile(filename, data, function(err) {
-                if (err) cb(err);
-                else cb(null, data);
-            });
+        fs.writeFile(filename, data, function(err) {
+            if (err) cb(err);
+            else cb(null, data);
         });
     });
 
