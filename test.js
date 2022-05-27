@@ -3,11 +3,11 @@
 const fs = require('fs'),
     child = require('child_process'),
     should = require('should'),
-    sqlite = require('sqlite3'),
+    sqlite = require('better-sqlite3'),
     rimraf = require('rimraf').sync,
     mkdirp = require('mkdirp').sync;
 
-const SJ = require('./');
+const sqliteJSON = require('./');
 
 const data = [
   { name: 'Washington', id: 1 },
@@ -18,27 +18,25 @@ const data = [
   { name: 'Adams', id: 6 },
 ];
 
+const bigInteger = '6500328718134052119';
+
 describe('sqliteToJson', function () {
 
     before(function (done) {
         rimraf('./tmp');
         mkdirp('./tmp');
 
-        const db = new sqlite.Database('./tmp/tmp.db');
-        this.sqlitejson = SJ(db);
+        const db = new sqlite('./tmp/tmp.db');
+        this.sqlitejson = sqliteJSON(db);
 
-        db.serialize(function(e) {
-            db.run("CREATE TABLE presidents (name TEXT, id INT)");
-            var stmt = db.prepare("INSERT INTO presidents VALUES (?, ?)");
+        db.exec("CREATE TABLE presidents (name TEXT, id INT)");
+        const stmt = db.prepare("INSERT INTO presidents VALUES (?, ?)");
 
-            data.forEach(function(row) {
-                stmt.run(row.name, row.id);
-            });
+        data.forEach(row => stmt.run(row.name, row.id));
+        db.exec('CREATE TABLE big (id INT);')
+        db.exec(`INSERT INTO big VALUES (${bigInteger})`);
 
-            stmt.finalize();
-
-            done(e);
-        });
+        done(null);
 
         desired = data.reduce(function(o, v) { o[v.name] = v; return o; }, {});
 
@@ -46,15 +44,17 @@ describe('sqliteToJson', function () {
     });
 
     it('accepts a filename', function() {
-        var sj = SJ('tmp/foo.db');
-        sj.should.be.an.instanceOf(SJ);
+        const dbfile = './tmp/newdb.db'
+        new sqlite(dbfile);
+        sqliteJSON(dbfile).should.be.an.instanceOf(sqliteJSON);
+        rimraf(dbfile);
     });
 
     it('calls back with all tables in the specified database', function (done) {
-        this.sqlitejson.tables(function(e, result) {
-            result.should.have.length(1);
-            result.should.be.containDeep(['presidents']);
-            done(e);
+        this.sqlitejson.tables(function(err, result) {
+            result.should.have.length(2);
+            result.should.be.containDeep(['presidents', 'big']);
+            done(err);
         });
     });
 
@@ -111,6 +111,17 @@ describe('sqliteToJson', function () {
         });
     });
 
+    it('returns a bigint properly', function (done) {
+        const desired = `[{"id":${bigInteger}}]`;
+        this.sqlitejson.json(
+            "SELECT id FROM big LIMIT 1",
+            function (err, json) {
+                if (!err) should.deepEqual(json, desired);
+                done(err);
+            }
+        );
+    });
+
     it('accepts SQL with a callback', function (done) {
         const desired = data.map(function(i) { return {"name": i.name}; }, {});
         this.sqlitejson.json("select name from presidents", function (err, json) {
@@ -161,7 +172,7 @@ describe('sqliteToJson', function () {
 
         nodeargs = [
                 "./tmp/tmp.db",
-                '"SELECT * FROM presidents;"'
+                '"SELECT * FROM presidents"'
             ];
 
         fixture = JSON.stringify();
@@ -185,7 +196,7 @@ describe('sqliteToJson', function () {
 
         nodeargs = [
                 "./tmp/tmp.db",
-                '"SELECT * FROM presidents;"',
+                '"SELECT * FROM presidents"',
                 "--where",
                 "id==1"
             ];
