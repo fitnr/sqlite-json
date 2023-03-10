@@ -29,8 +29,8 @@ program
             where: options.where || null,
             columns: options.columns || null
         };
-
-        sj(database).json(sql, options, function(err, json) {
+        var connection = sj(database);
+        connection.json(sql, options, function(err, json) {
 
             if (err) {
                 if (String(err).indexOf('no such table') > -1)
@@ -38,6 +38,7 @@ program
                 else
                     console.error(err.message);
 
+                connection.client.close()
                 process.exit(1);
 
             } else if (output) {
@@ -56,6 +57,7 @@ program
                 });
                 process.stdout.write(json + '\n');
             }
+            connection.client.close()
         });
     });
 
