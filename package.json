@@ -36,7 +36,7 @@
     "sqlite sqlite3 json"
   ],
   "dependencies": {
-    "better-sqlite3": "^7.5.3",
+    "better-sqlite3": "^9.0.0",
     "commander": "^2.15.1",
     "json-bigint": "^1.0.0",
     "mkdirp": "^1.0.4"
